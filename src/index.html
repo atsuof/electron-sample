@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<title>electron chat</title>
+<head>
+    <link href="./css/style.css" rel="stylesheet">
+    <script>
+    </script>
+</head>
+<body>
+    <div class="msgbox">
+        <script>
+            window.$ = require("jquery");
+            minimist = require("minimist");
+            const colors = [
+                'lime',
+                'aqua',
+                'yellow',
+                'red',
+                'fuchsia'
+                ];
+
+            const colorsLen = colors.length;
+            const layerCnt = 10;
+            const winWidth = window.innerWidth;
+            const layerIds = [];
+            const $msgbox = $('.msgbox');
+
+            for (let i = 0; i < layerCnt; i++) {
+                $('<div>', { class: 'layer' }).appendTo($msgbox);
+                layerIds.push(0);
+            }
+
+            const $layers = $('.layer');
+
+            let msgId_ = 1;
+
+            $(function() {
+
+                const args = minimist(location.hash.split('#')[1].split('&'));
+                const userid = args['userid'];
+                const pwd = args['pwd'];
+                var HttpProxyAgent = require('http-proxy-agent');
+                var proxy = 'http://'+ userid + ':' + pwd + '@proxy.sample.co.jp:80';
+                var agent = new HttpProxyAgent(proxy);
+                var socket = require('socket.io-client')('http://localhost:3000',{agent:agent});
+                $('form').submit(function() {
+                    socket.emit('message', $('input').val());
+                    $('input').val('');
+                    return false;
+                });
+                
+                $msgbox.prepend('<div style="font-size:32px;color:white;">' + '※' + '</div>');
+
+                socket.on('message', function(msg) {
+                    let msgId = msgId_++;
+                    let minId = msgId;
+                    for (let layerId of layerIds) {
+                        if (layerId < minId) {
+                            minId = layerId;
+                        }
+                    }
+                    let index = layerIds.findIndex((id) => id === minId);
+
+                    layerIds[index] = msgId;
+
+                    const $layer = $layers.eq(index);
+                    //msg = msg.replace('/n','<br/>');
+
+                    const $msg = $('<div>', { class: 'msg', text: msg }).css('color', colors[Math.floor(Math.random() * colorsLen)]).appendTo($layer);
+                    //$msgbox.prepend(msg)
+                    $msg.show();
+            
+                    let right = -$msg.width();
+                    
+                    let intervalId = setInterval(function () {
+
+                        right += 1;
+                        $msg.show().css('right', right);
+
+                        if (right > winWidth) {
+                            $msg.remove();
+
+                            if (layerIds[index] === msgId) {
+                                layerIds[index] = 0;
+                            }
+                            clearInterval(intervalId);
+                        }
+                    });
+                });
+            });
+        </script>
+
+    </div>
+</body>
+</html>

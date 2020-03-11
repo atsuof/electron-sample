@@ -1,0 +1,3 @@
+# electron sample 実装
+透明のWindowを表示します。
+表示したWindowにwebsocketを利用して某動画サイト風にメッセージを表示します。
