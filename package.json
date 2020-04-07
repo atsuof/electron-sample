@@ -13,10 +13,10 @@
     "http-proxy-agent": "^2.1.0",
     "socket.io-client": "^2.2.0",
     "jquery": "^3.4.1",
-    "minimist": "^1.2.2"
+    "minimist": "^1.2.3"
   },
   "devDependencies": {
     "jquery": "^3.4.1",
-    "minimist": "^1.2.2"
+    "minimist": "^1.2.3"
   }
 }
